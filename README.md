@@ -1,3 +1,5 @@
+# TCP/WebSockets Chat Client
+
 Write a chat client using HTML5, HTML5 WebSockets, CSS, and JavaScript. Use TCP/WebSockets to connect to the chat server. More specifically, you do not need to support UDP at all.
 Your chat client must connect to the chat server on port 8787 (you may hardcode the server hostname and port number). When you submit your project, be sure the hostname is set to `localhost` and the port number is 8787. You might need to modify your Project #3 server to act as a WebSockets server.
 

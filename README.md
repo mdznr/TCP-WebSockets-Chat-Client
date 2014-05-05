@@ -13,7 +13,7 @@ Once logged in successfully, the user is in the "main" interface. While the desi
 1. Users must always be able to see their username in the upper-right hand corner of the page.
 2. Users must always be able to click a LOGOUT button or link in the upper-right hand corner of the page to log out of the server.
 3. Users must always be able to see a list of all users; refresh this list via the `WHO HERE` request (requested by the user via an UPDATE or REFRESH button/link). This must be in a separate column.
-4. Messages sent via the "main" interface are sent to the chat server via the `BROADCAST command.
+4. Messages sent via the "main" interface are sent to the chat server via the `BROADCAST` command.
 5. Usernames that appear anywhere in the interface should be highlighted in a persistent color (e.g. user X is shown in red, user Y is shown in green, etc.); cycle through at least 16 distinct colors).
 6. When a user clicks on a username **ANYWHERE WITHIN THE "MAIN" INTERFACE**, the user interface opens a new window that allows the user to send and receive private messages. Likewise, when a private message is received, show it in a new window. If a window is already open for a given username, send and receive all messages from that window (i.e. do not blindly open a new window for each private message exchange).
 

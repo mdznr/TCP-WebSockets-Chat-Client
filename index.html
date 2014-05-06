@@ -118,7 +118,10 @@
 	</style>
 	<script type="text/javascript">
 		// The current user's username.
-		var username;
+		var username = "";
+		
+		// The windows for each private message session.
+		var privateMessageWindows = {};
 		
 		if ( this.MozWebSocket ) {
 			WebSocket = MozWebSocket;
@@ -151,12 +154,16 @@
 			
 			if ( message.substring(0, OK.length) === OK ) {
 				// OK|
+				refreshUsers();
 			} else if ( message.substring(0, ERROR.length) === ERROR ) {
 				// ERROR|
 				alert("ERROR: " + message);
 			} else if ( message.substring(0, BROADCAST_FROM.length) === BROADCAST_FROM ) {
 				// BROADCAST FROM user|message
 				var newLine = message.indexOf("|");
+				if ( newLine < 0 ) {
+					newLine = message.length;
+				}
 				var fromUser = message.substring(BROADCAST_FROM.length, newLine);
 				var messageContents = message.substring(newLine+1, message.length);
 				addMessageToLog(fromUser, messageContents);
@@ -164,6 +171,9 @@
 				// PRIVATE FROM user|message
 				// TODO: Open new window.
 				var newLine = message.indexOf("|");
+				if ( newLine < 0 ) {
+					newLine = message.length;
+				}
 				var fromUser = message.substring(PRIVATE_FROM.length, newLine);
 				var messageContents = message.substring(newLine+1, message.length);
 				addMessageToLog(fromUser, "PRIVATE " + messageContents);
@@ -174,10 +184,8 @@
 				var lastUser = users[users.length-1];
 				users[users.length-1] = lastUser.substring(0, lastUser.length-1);
 				
-				console.log(users);
-				
+				// List to add users to.
 				var userList = document.createElement("ul");
-				
 				// Update the users list.
 				for ( var user in users ) {
 					var theirUsername = users[user];
@@ -185,10 +193,12 @@
 					userListItem.innerText = theirUsername;
 					userList.appendChild(userListItem);
 				}
+				// Remove the previous list.
 				var node = document.getElementById("users");
 				while ( node.hasChildNodes() ) {
 					node.removeChild(node.lastChild);
 				}
+				// Add the new list.
 				node.appendChild(userList);
 			}
 		}
@@ -199,16 +209,25 @@
 			alert("Error.");
 		}
 		
+		function windowForPrivateMessageWithUser(user) {
+			var privateMessageWindow = privateMessageWindows[user];
+			if ( !privateMessageWindow ) {
+				privateMessageWindow = window.open('index.html','ex01','width=1024,height=768,left=0,location=no,menubar=no,resizable=no,scrollbars=yes,status=no,toolbar=no');
+				privateMessageWindows[user] = privateMessageWindow;
+			}
+			return privateMessageWindow;
+		}
+		
 		function login() {
 			w.send("ME IS " + username);
 		}
 		
 		function logout() {
-			w.send("LOGOUT " + username);
+			w.send("LOGOUT");
 		}
 		
 		function refreshUsers() {
-			w.send("WHO HERE " + username);
+			w.send("WHO HERE");
 		}
 		
 		function broadcastMessage() {
@@ -219,7 +238,7 @@
 			document.getElementById("compose").value = "";
 			
 			// Send the message.
-			w.send("BROADCAST " + username + "|" + message);
+			w.send("BROADCAST |" + message);
 		}
 		
 		function sendMessage(toUsername) {
@@ -230,7 +249,7 @@
 			document.getElementById("compose").value = "";
 			
 			// Send the message.
-			w.send("SEND " + username + " " + toUsername + "|" + message);
+			w.send("SEND " + toUsername + "|" + message);
 		}
 		
 		function addMessageToLog(username, message) {
@@ -261,30 +280,10 @@
 	</div>
 	<div id="users">
 		<ul id="usersList">
-			<li>Jerry</li>
-			<li>George</li>
-			<li>Kramer</li>
-			<li>Elaine</li>
 		</ul>
 	</div>
 	<div id="chat">
 		<div id="log">
-			<li><span class='username'>George</span>: Oh, also... my fiance died from licking toxic envelopes that I picked out.</li>
-			<li><span class='username'>Jerry</span>: I don't return fruit. Fruit is a gamble. I know that going in.</li>
-			<li><span class='username'>Jerry</span>: People with guns don't understand. That's why they get guns.</li>
-			<li><span class='username'>Kramer</span>: I just can't be with someone who's life is in complete disarray. </li>
-			<li><span class='username'>George</span>: I'm a great quitter. I come from a long line of quitters.</li>
-			<li><span class='username'>Kramer</span>: Bookman. The library cop's name is Bookman.</li>
-			<li><span class='username'>Jerry</span>: You want me to take an overview? I see a very cheap man.</li>
-			<li><span class='username'>Kramer</span>: She needs a little tenderness. She needs a little understanding.</li>
-			<li><span class='username'>George</span>: Oh, also... my fiance died from licking toxic envelopes that I picked out.</li>
-			<li><span class='username'>Jerry</span>: I don't return fruit. Fruit is a gamble. I know that going in.</li>
-			<li><span class='username'>Jerry</span>: People with guns don't understand. That's why they get guns.</li>
-			<li><span class='username'>Kramer</span>: I just can't be with someone who's life is in complete disarray. </li>
-			<li><span class='username'>George</span>: I'm a great quitter. I come from a long line of quitters.</li>
-			<li><span class='username'>Kramer</span>: Bookman. The library cop's name is Bookman.</li>
-			<li><span class='username'>Jerry</span>: You want me to take an overview? I see a very cheap man.</li>
-			<li><span class='username'>Kramer</span>: She needs a little tenderness. She needs a little understanding.</li>
 		</div>
 		<div id="send">
 			<!-- TODO: Make this work with 'enter' -->

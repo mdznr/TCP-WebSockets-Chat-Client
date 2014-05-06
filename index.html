@@ -117,7 +117,7 @@
 		
 	</style>
 	<script type="text/javascript">
-		// The username.
+		// The current user's username.
 		var username;
 		
 		if ( this.MozWebSocket ) {
@@ -132,12 +132,65 @@
 		url = "ws://localhost:8787/chat";
 		w = new WebSocket(url);
 		w.onopen = function() {
+			setInterval("refreshUsers()", 5000);
 		}
 		w.onmessage = function(e) {
 			var message = e.data.toString();
-			console.log(message);
-			// addMessageToLog(username, message);
-			addMessageToLog("SERVER", message);
+			
+			// Possible messages:
+			// OK|
+			// ERROR|
+			// BROADCAST FROM user|message
+			// PRIVATE FROM user|message
+			// WHO HERE?
+			
+			var OK = "OK";
+			var ERROR = "ERROR";
+			var BROADCAST_FROM = "BROADCAST FROM ";
+			var PRIVATE_FROM = "PRIVATE FROM ";
+			
+			if ( message.substring(0, OK.length) === OK ) {
+				// OK|
+			} else if ( message.substring(0, ERROR.length) === ERROR ) {
+				// ERROR|
+				alert("ERROR: " + message);
+			} else if ( message.substring(0, BROADCAST_FROM.length) === BROADCAST_FROM ) {
+				// BROADCAST FROM user|message
+				var newLine = message.indexOf("|");
+				var fromUser = message.substring(BROADCAST_FROM.length, newLine);
+				var messageContents = message.substring(newLine+1, message.length);
+				addMessageToLog(fromUser, messageContents);
+			} else if ( message.substring(0, PRIVATE_FROM.length) === PRIVATE_FROM ) {
+				// PRIVATE FROM user|message
+				// TODO: Open new window.
+				var newLine = message.indexOf("|");
+				var fromUser = message.substring(PRIVATE_FROM.length, newLine);
+				var messageContents = message.substring(newLine+1, message.length);
+				addMessageToLog(fromUser, "PRIVATE " + messageContents);
+			} else {
+				// comma-separated usernames (no spaces) ending with "|".
+				var users = message.split(",");
+				// Remove newline ("|") from last user.
+				var lastUser = users[users.length-1];
+				users[users.length-1] = lastUser.substring(0, lastUser.length-1);
+				
+				console.log(users);
+				
+				var userList = document.createElement("ul");
+				
+				// Update the users list.
+				for ( var user in users ) {
+					var theirUsername = users[user];
+					var userListItem = document.createElement("li");
+					userListItem.innerText = theirUsername;
+					userList.appendChild(userListItem);
+				}
+				var node = document.getElementById("users");
+				while ( node.hasChildNodes() ) {
+					node.removeChild(node.lastChild);
+				}
+				node.appendChild(userList);
+			}
 		}
 		w.onclose = function(e) {
 			alert("Connection closed.");
@@ -146,12 +199,16 @@
 			alert("Error.");
 		}
 		
-		function login(username) {
+		function login() {
 			w.send("ME IS " + username);
 		}
 		
-		function logout(username) {
+		function logout() {
 			w.send("LOGOUT " + username);
+		}
+		
+		function refreshUsers() {
+			w.send("WHO HERE " + username);
 		}
 		
 		function broadcastMessage() {
@@ -173,7 +230,7 @@
 			document.getElementById("compose").value = "";
 			
 			// Send the message.
-			w.send("SEND " + toUsername + " " + username + "|" + message);
+			w.send("SEND " + username + " " + toUsername + "|" + message);
 		}
 		
 		function addMessageToLog(username, message) {
@@ -191,7 +248,7 @@
 			// Warning: This shouldn't accept usernames with spaces.
 			username = prompt("What's your name?", "");
 			document.getElementById("username").innerText = username;
-			login(username);
+			login();
 		}
 	</script>
 	
@@ -203,7 +260,7 @@
 		<span>Hi, <span id="username">User</span>. &nbsp;<a onclick="logout()">Logout</a></span>
 	</div>
 	<div id="users">
-		<ul>
+		<ul id="usersList">
 			<li>Jerry</li>
 			<li>George</li>
 			<li>Kramer</li>

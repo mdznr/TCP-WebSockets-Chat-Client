@@ -6,6 +6,16 @@
 	<style type="text/css">
 	</style>
 	<script type="text/javascript">
+		// The username.
+		var username;
+		
+		window.onload = function() {
+			// This shouldn't accept usernames with spaces.
+			username = prompt("What's your name?", "");
+			
+			// Log for debugging.
+			console.log(username);
+		}
 	</script>
 </head>
 <body>

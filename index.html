@@ -2,23 +2,204 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Chat Away</title>
+	<title>Messages</title>
 	<style type="text/css">
+		/* Simple CSS-Reset */
+		* {
+			padding: 0;
+			margin: 0;
+			box-sizing: border-box;
+			font: 18px/22px "Open Sans", "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;
+			-webkit-font-smoothing: antialiased;
+		}
+		
+		a, a:hover, a:visited, a:active {
+			color: #1A8CFF;
+			cursor: pointer;
+			text-decoration: none;
+			transition: opacity 0.2s;
+		}
+		
+		a:hover {
+			opacity: 0.75;
+		}
+		
+		a:active {
+			opacity: 0.5;
+		}
+		
+		input[type='text'] {
+			background: #FFFFFF;
+			border: 1px solid #E6E6E6;
+			padding: 7px 9px 5px 9px;
+		}
+		
+		input[type='text'] {
+			outline: none;
+		}
+		
+		ul, li {
+			list-style-type: none;
+		}
+		
+		li {
+			padding: 12px 18px;
+			border-bottom: 1px #F2F2F2 solid;
+		}
+		
+		
+		#topBar {
+			position: fixed;
+			top: 0;
+			z-index: 2;
+			height: 40px;
+			width: 100%;
+			background: rgb(250, 251, 252);
+			-moz-box-shadow: 0px 1px 0px 0px rgba(0,0,0,0.05);
+			box-shadow:      0px 1px 0px 0px rgba(0,0,0,0.05);
+			text-align: right;
+			padding: 9px 17px 7px 17px;
+		}
+		
+		#users {
+			position: absolute;
+			top: 0;
+			height: 100%;
+			background-color: #fff;
+			width: 320px;
+			padding-top: 40px;
+			overflow: auto;
+			border-right: 1px #E6E6E6 solid;
+		}
+		
+		#chat {
+			position: absolute;
+			top: 0;
+			right: 0;
+			left: 320px;
+			bottom: 0;
+			height: 100%;
+			padding-top: 40px;
+		}
+		
+		#log {
+			padding-bottom: 16px;
+			padding-left: 3px;
+			height: -webkit-calc(100% - 44px);
+			overflow: scroll;
+		}
+		
+		#log li {
+			border: none;
+		}
+		
+		.username {
+			font-weight: 600;
+		}
+		
+		#send {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			background: #FCFCFC;
+			border-top: 1px solid #E6E6E6;
+			padding: 10px;
+		}
+		
+		#compose {
+			width: -webkit-calc(100% - 54px);
+		}
+		
+		#sendButton {
+			padding-left: 6px;
+			text-align: center;
+		}
+		
 	</style>
 	<script type="text/javascript">
 		// The username.
 		var username;
 		
+		function login() {
+			// TODO: Login.
+		}
+		
+		function logout() {
+			// TODO: Logout.
+		}
+		
+		function sendMessage() {
+			// Message contents.
+			var message = document.getElementById("compose").value;
+			
+			// Clear contents in input field.
+			document.getElementById("compose").value = "";
+			
+			addMessageToLog(username, message);
+			
+			// TODO: Send message.
+		}
+		
+		function addMessageToLog(username, message) {
+			var listItem = document.createElement("li");
+			var spanItem = document.createElement("span");
+			spanItem.className = "username";
+			spanItem.innerText = username;
+			listItem.appendChild(spanItem);
+			listItem.innerHTML += ": " + message;
+			
+			document.getElementById("log").appendChild(listItem);
+		}
+		
 		window.onload = function() {
 			// This shouldn't accept usernames with spaces.
 			username = prompt("What's your name?", "");
+			
+			document.getElementById("username").innerText = username;
 			
 			// Log for debugging.
 			console.log(username);
 		}
 	</script>
+	
+	<!-- Open Sans -->
+	<link href="http://brick.a.ssl.fastly.net/Open+Sans:400,300,600" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<p>Chat away!</p>
+	<div id="topBar">
+		<span>Hi, <span id="username">User</span>. &nbsp;<a onclick="logout()">Logout</a></span>
+	</div>
+	<div id="users">
+		<ul>
+			<li>Jerry</li>
+			<li>George</li>
+			<li>Kramer</li>
+			<li>Elaine</li>
+		</ul>
+	</div>
+	<div id="chat">
+		<div id="log">
+			<li><span class='username'>George</span>: Oh, also... my fiance died from licking toxic envelopes that I picked out.</li>
+			
+			<li><span class='username'>Jerry</span>: I don't return fruit. Fruit is a gamble. I know that going in.</li>
+			
+			<li><span class='username'>Jerry</span>: People with guns don't understand. That's why they get guns.</li>
+			
+			<li><span class='username'>Kramer</span>: I just can't be with someone who's life is in complete disarray. </li>
+			
+			<li><span class='username'>George</span>: I'm a great quitter. I come from a long line of quitters.</li>
+			
+			<li><span class='username'>Kramer</span>: Bookman. The library cop's name is Bookman.</li>
+			
+			<li><span class='username'>Jerry</span>: You want me to take an overview? I see a very cheap man.</li>
+			
+			<li><span class='username'>Kramer</span>: She needs a little tenderness. She needs a little understanding.</li>
+		</div>
+		<div id="send">
+			<!-- TODO: Make this work with 'enter' -->
+			<input id="compose" name="compose" type="text"></input>
+			<a id="sendButton" onclick="sendMessage()">Send</a>
+		</div>
+	</div>
 </body>
 </html>

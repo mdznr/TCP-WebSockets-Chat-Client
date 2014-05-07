@@ -123,6 +123,27 @@
 		// The windows for each private message session.
 		var privateMessageWindows = {};
 		
+		var availableColors = [
+			"#2BD92B",
+			"#FF2E4A",
+			"#9780FF",
+			"#007AFF",
+			"#FF6940",
+			"#AAFC32",
+			"#5856D6",
+			"#5AC8FB",
+			"#4FE07F",
+			"#FF4A00",
+			"#FCFC32",
+			"#FF4C82",
+			"#34AADC",
+			"#FFCC00",
+			"#52EDC7",
+			"#FF9500",
+		];
+		
+		var userColors = {};
+		
 		if ( this.MozWebSocket ) {
 			WebSocket = MozWebSocket;
 		}
@@ -191,6 +212,7 @@
 					var theirUsername = users[user];
 					var userListItem = document.createElement("li");
 					userListItem.onclick = function(){clickedUsername(theirUsername);};
+					userListItem.style.color = hexColorForUserWithUsername(theirUsername);
 					userListItem.innerText = theirUsername;
 					userList.appendChild(userListItem);
 				}
@@ -224,6 +246,15 @@
 			return privateMessageWindow;
 		}
 		
+		function hexColorForUserWithUsername(theirUsername) {
+			var hexColor = userColors[theirUsername];
+			if ( !hexColor ) {
+				hexColor = availableColors.shift();
+				userColors[theirUsername] = hexColor;
+			}
+			return hexColor;
+		}
+		
 		function login() {
 			w.send("ME IS " + username);
 			setInterval("refreshUsers()", 5000);
@@ -231,6 +262,7 @@
 		
 		function logout() {
 			w.send("LOGOUT");
+			setUsername("");
 		}
 		
 		function refreshUsers() {
@@ -260,11 +292,12 @@
 			w.send("SEND " + toUsername + "|" + message);
 		}
 		
-		function addMessageToLog(username, message) {
+		function addMessageToLog(theirUsername, message) {
 			var listItem = document.createElement("li");
 			var spanItem = document.createElement("span");
 			spanItem.className = "username";
-			spanItem.innerText = username;
+			spanItem.innerText = theirUsername;
+			spanItem.style.color = hexColorForUserWithUsername(theirUsername);
 			listItem.appendChild(spanItem);
 			listItem.innerHTML += ": " + message;
 			
@@ -297,14 +330,21 @@
 			}
 		}
 		
+		function setUsername(name) {
+			username = name;
+			document.getElementById("username").innerText = username;
+		}
+		
 		window.onload = function() {
 			// Warning: This shouldn't accept usernames with spaces.
-			username = getURLParameters("username");
-			if ( !username ) {
-				username = prompt("What's your name?", "");
+			var usernameParam = getURLParameters("username");
+			if ( !usernameParam ) {
+				usernameParam = prompt("What's your name?", "");
+				setUsername(usernameParam);
 				login();
+			} else {
+				setUsername(usernameParam);
 			}
-			document.getElementById("username").innerText = username;
 		}
 	</script>
 	
